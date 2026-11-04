@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS 568 - Speed Testing</title>
+    <script src="/static/app.js" defer></script>
+</head>
+<body>
+    <main>
+        <h1>Speed Testing</h1>
+
+        <p>Tarayıcı ile sunucu arasındaki HTTP gecikmesini ölç.</p>
+
+        <button id="startPing">Ping Testini Başlat</button>
+
+        <p id="status" aria-live="polite">Test bekleniyor.</p>
+
+        <h2>Ping Sonucu</h2>
+        <output id="pingResult">-- ms</output>
+
+        <p id="dataUsage"></p>
+    </main>
+</body>
+</html>
