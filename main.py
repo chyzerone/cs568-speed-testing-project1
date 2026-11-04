@@ -1,4 +1,7 @@
+import os
 
+from fastapi import Query
+from fastapi.responses import StreamingResponse
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -33,4 +36,36 @@ def ping():
         content=b"ok",
         media_type="text/plain",
         headers={"Cache-Control": "no-store"}
+    )
+
+
+# One reusable 256 KiB block of high-entropy test data.
+DOWNLOAD_CHUNK = os.urandom(256 * 1024)
+
+
+def generate_download_data(size_bytes: int):
+    remaining_bytes = size_bytes
+
+    while remaining_bytes > 0:
+        chunk_size = min(remaining_bytes, len(DOWNLOAD_CHUNK))
+        yield DOWNLOAD_CHUNK[:chunk_size]
+        remaining_bytes -= chunk_size
+
+
+@app.get("/api/download")
+def download(
+    size: int = Query(
+        default=4 * 1024 * 1024,
+        ge=256 * 1024,
+        le=32 * 1024 * 1024
+    )
+):
+    return StreamingResponse(
+        generate_download_data(size),
+        media_type="application/octet-stream",
+        headers={
+            "Cache-Control": "no-store, no-transform",
+            "Content-Length": str(size),
+            "X-Content-Type-Options": "nosniff"
+        }
     )
