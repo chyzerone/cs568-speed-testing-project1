@@ -5,51 +5,191 @@
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
-    <title>CS 568 - Speed Testing</title>
+
+    <meta name="description"
+          content="CS 568.A web tabanlı HTTP hız testi">
+
+    <title>Speed Testing | CS 568.A</title>
+
+    <link rel="stylesheet" href="/static/styles.css">
     <script src="/static/app.js" defer></script>
 </head>
+
 <body>
-    <main>
-        <h1>Speed Testing</h1>
-        <p>Tarayıcı ile sunucu arasındaki HTTP hız testi.</p>
+    <main class="app-shell">
 
-        <button id="startAll">Testi Başlat</button>
+        <header class="topbar">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true">↗</span>
 
-        <p id="overallStatus" aria-live="polite">
-            Test bekleniyor.
-        </p>
+                <div class="brand-text">
+                    <strong>Speed Testing</strong>
+                    <span>CS 568.A · Project 1</span>
+                </div>
+            </div>
 
-        <progress id="overallProgress"
-                  value="0" max="3"
-                  aria-label="Test ilerlemesi"></progress>
+            <span class="topbar-label">HTTP SPEED TEST</span>
+        </header>
 
-        <section>
-            <h2>Ping</h2>
-            <p id="pingStatus">Bekliyor</p>
-            <output id="pingResult">-- ms</output>
-            <p id="pingDetails"></p>
+        <section class="hero" aria-labelledby="pageTitle">
+            <p class="eyebrow">
+                NETWORK PERFORMANCE
+            </p>
+
+            <h1 id="pageTitle">
+                Bağlantını <span>ölç.</span>
+            </h1>
+
+            <p class="hero-description">
+                Tarayıcın ile test sunucusu arasındaki
+                HTTP gecikmesini, indirme ve yükleme
+                performansını tek işlemde ölç.
+            </p>
+
+            <div class="hero-actions">
+                <button id="startAll" class="start-button">
+                    Testi Başlat
+                </button>
+
+                <span class="test-hint">
+                    Ping → Download → Upload
+                </span>
+            </div>
+
+            <div class="progress-container">
+                <p id="overallStatus" aria-live="polite">
+                    Test bekleniyor.
+                </p>
+
+                <progress
+                    id="overallProgress"
+                    value="0"
+                    max="3"
+                    aria-label="Test ilerlemesi">
+                </progress>
+            </div>
         </section>
 
-        <section>
-            <h2>Download</h2>
-            <p id="downloadStatus">Bekliyor</p>
-            <output id="downloadResult">-- Mbps</output>
-            <p id="downloadDetails"></p>
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">LIVE MEASUREMENTS</p>
+                <h2>Ölçüm Sonuçları</h2>
+            </div>
+            <span class="section-note">HTTP tabanlı ölçüm</span>
+        </div>
+
+        <div class="metrics-grid">
+
+            <section class="metric-card ping-card">
+                <div class="metric-header">
+                    <span class="metric-icon" aria-hidden="true">◎</span>
+                    <span class="metric-number">01</span>
+                </div>
+
+                <h3>Ping</h3>
+                <p class="metric-description">
+                    HTTP gidiş-dönüş gecikmesi
+                </p>
+
+                <output id="pingResult" class="metric-value">
+                    -- ms
+                </output>
+
+                <p id="pingStatus" class="metric-status">
+                    Bekliyor
+                </p>
+
+                <p id="pingDetails" class="metric-details"></p>
+            </section>
+
+            <section class="metric-card download-card">
+                <div class="metric-header">
+                    <span class="metric-icon" aria-hidden="true">↓</span>
+                    <span class="metric-number">02</span>
+                </div>
+
+                <h3>Download</h3>
+                <p class="metric-description">
+                    Sunucudan alınan veri hızı
+                </p>
+
+                <output id="downloadResult" class="metric-value">
+                    -- Mbps
+                </output>
+
+                <p id="downloadStatus" class="metric-status">
+                    Bekliyor
+                </p>
+
+                <p id="downloadDetails" class="metric-details"></p>
+            </section>
+
+            <section class="metric-card upload-card">
+                <div class="metric-header">
+                    <span class="metric-icon" aria-hidden="true">↑</span>
+                    <span class="metric-number">03</span>
+                </div>
+
+                <h3>Upload</h3>
+                <p class="metric-description">
+                    Sunucuya gönderilen veri hızı
+                </p>
+
+                <output id="uploadResult" class="metric-value">
+                    -- Mbps
+                </output>
+
+                <p id="uploadStatus" class="metric-status">
+                    Bekliyor
+                </p>
+
+                <p id="uploadDetails" class="metric-details"></p>
+            </section>
+        </div>
+
+        <section class="usage-panel" aria-labelledby="usageTitle">
+            <div class="usage-heading">
+                <div>
+                    <p class="eyebrow">TRANSFER REPORT</p>
+                    <h2 id="usageTitle">Veri Kullanımı</h2>
+                </div>
+                <span class="usage-note">Test gövdesi verileri</span>
+            </div>
+
+            <div class="usage-grid">
+                <p id="totalDownloaded">
+                    İndirilen: -- MB
+                </p>
+
+                <p id="totalUploaded">
+                    Yüklenen: -- MB
+                </p>
+
+                <p id="totalTransferred">
+                    Toplam: -- MB
+                </p>
+            </div>
+
+            <p class="usage-disclaimer">
+                Gösterilen veri miktarları, sayılan HTTP test
+                gövdelerini kapsar. Protokol ek yükleri ve
+                tüm yardımcı trafik dahil değildir.
+            </p>
         </section>
 
-        <section>
-            <h2>Upload</h2>
-            <p id="uploadStatus">Bekliyor</p>
-            <output id="uploadResult">-- Mbps</output>
-            <p id="uploadDetails"></p>
-        </section>
+        <footer class="site-footer">
+            <div>
+                <strong>Speed Testing</strong>
+                <span>© 2026 · CS 568.A Project 1</span>
+            </div>
 
-        <section>
-            <h2>Veri Kullanımı</h2>
-            <p id="totalDownloaded">İndirilen: -- MB</p>
-            <p id="totalUploaded">Yüklenen: -- MB</p>
-            <p id="totalTransferred">Toplam: -- MB</p>
-        </section>
+            <p>
+                Developed by
+                <strong>Emre Karataş</strong>
+                <span class="footer-separator">&amp;</span>
+                <strong>Furkan Çağatay Ekinci</strong>
+            </p>
+        </footer>
     </main>
 </body>
 </html>
