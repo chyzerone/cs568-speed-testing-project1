@@ -22,7 +22,7 @@ const ui = {
 };
 
 const PING_SAMPLE_COUNT = 5;
-const DOWNLOAD_SIZE = 4 * 1024 * 1024;
+const DOWNLOAD_SIZE = 8 * 1024 * 1024;
 const UPLOAD_SIZE = 4 * 1024 * 1024;
 
 const usage = {
