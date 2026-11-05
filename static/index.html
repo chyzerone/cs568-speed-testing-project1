@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -20,24 +21,43 @@
         <output id="pingResult">-- ms</output>
 
         <p id="dataUsage"></p>
-        
+
         <section>
-    <h2>Download Speed Test</h2>
+            <h2>Download Speed Test</h2>
 
-    <button id="startDownload">
-        Download Testini Başlat
-    </button>
+            <button id="startDownload">
+                Download Testini Başlat
+            </button>
 
-    <p id="downloadStatus" aria-live="polite">
-        Download testi bekleniyor.
-    </p>
+            <p id="downloadStatus" aria-live="polite">
+                Download testi bekleniyor.
+            </p>
 
-    <p>
-        İndirme hızı:
-        <output id="downloadResult">-- Mbps</output>
-    </p>
+            <p>
+                İndirme hızı:
+                <output id="downloadResult">-- Mbps</output>
+            </p>
 
-    <p id="downloadDetails"></p>
+            <p id="downloadDetails"></p>
+        </section>
+
+        <section>
+            <h2>Upload Speed Test</h2>
+
+            <button id="startUpload">
+                Upload Testini Başlat
+            </button>
+
+            <p id="uploadStatus" aria-live="polite">
+                Upload testi bekleniyor.
+            </p>
+
+            <p>
+                Yükleme hızı:
+                <output id="uploadResult">-- Mbps</output>
+            </p>
+
+            <p id="uploadDetails"></p>
         </section>
     </main>
 </body>

@@ -1,11 +1,12 @@
 import os
-
-from fastapi import FastAPI, Query, Request, HTTPException
-from fastapi.responses import StreamingResponse
 from pathlib import Path
 
-from fastapi import FastAPI
-from fastapi.responses import FileResponse, Response
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.responses import (
+    FileResponse,
+    Response,
+    StreamingResponse,
+)
 from fastapi.staticfiles import StaticFiles
 
 
