@@ -3,61 +3,52 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
     <title>CS 568 - Speed Testing</title>
     <script src="/static/app.js" defer></script>
 </head>
 <body>
     <main>
         <h1>Speed Testing</h1>
+        <p>Tarayıcı ile sunucu arasındaki HTTP hız testi.</p>
 
-        <p>Tarayıcı ile sunucu arasındaki HTTP gecikmesini ölç.</p>
+        <button id="startAll">Testi Başlat</button>
 
-        <button id="startPing">Ping Testini Başlat</button>
+        <p id="overallStatus" aria-live="polite">
+            Test bekleniyor.
+        </p>
 
-        <p id="status" aria-live="polite">Test bekleniyor.</p>
-
-        <h2>Ping Sonucu</h2>
-        <output id="pingResult">-- ms</output>
-
-        <p id="dataUsage"></p>
+        <progress id="overallProgress"
+                  value="0" max="3"
+                  aria-label="Test ilerlemesi"></progress>
 
         <section>
-            <h2>Download Speed Test</h2>
+            <h2>Ping</h2>
+            <p id="pingStatus">Bekliyor</p>
+            <output id="pingResult">-- ms</output>
+            <p id="pingDetails"></p>
+        </section>
 
-            <button id="startDownload">
-                Download Testini Başlat
-            </button>
-
-            <p id="downloadStatus" aria-live="polite">
-                Download testi bekleniyor.
-            </p>
-
-            <p>
-                İndirme hızı:
-                <output id="downloadResult">-- Mbps</output>
-            </p>
-
+        <section>
+            <h2>Download</h2>
+            <p id="downloadStatus">Bekliyor</p>
+            <output id="downloadResult">-- Mbps</output>
             <p id="downloadDetails"></p>
         </section>
 
         <section>
-            <h2>Upload Speed Test</h2>
-
-            <button id="startUpload">
-                Upload Testini Başlat
-            </button>
-
-            <p id="uploadStatus" aria-live="polite">
-                Upload testi bekleniyor.
-            </p>
-
-            <p>
-                Yükleme hızı:
-                <output id="uploadResult">-- Mbps</output>
-            </p>
-
+            <h2>Upload</h2>
+            <p id="uploadStatus">Bekliyor</p>
+            <output id="uploadResult">-- Mbps</output>
             <p id="uploadDetails"></p>
+        </section>
+
+        <section>
+            <h2>Veri Kullanımı</h2>
+            <p id="totalDownloaded">İndirilen: -- MB</p>
+            <p id="totalUploaded">Yüklenen: -- MB</p>
+            <p id="totalTransferred">Toplam: -- MB</p>
         </section>
     </main>
 </body>

@@ -1,10 +1,85 @@
 
-const startButton = document.getElementById("startPing");
-const statusText = document.getElementById("status");
-const pingResult = document.getElementById("pingResult");
-const dataUsage = document.getElementById("dataUsage");
+const ui = {
+    startButton: document.getElementById("startAll"),
+    overallStatus: document.getElementById("overallStatus"),
+    overallProgress: document.getElementById("overallProgress"),
+
+    pingStatus: document.getElementById("pingStatus"),
+    pingResult: document.getElementById("pingResult"),
+    pingDetails: document.getElementById("pingDetails"),
+
+    downloadStatus: document.getElementById("downloadStatus"),
+    downloadResult: document.getElementById("downloadResult"),
+    downloadDetails: document.getElementById("downloadDetails"),
+
+    uploadStatus: document.getElementById("uploadStatus"),
+    uploadResult: document.getElementById("uploadResult"),
+    uploadDetails: document.getElementById("uploadDetails"),
+
+    totalDownloaded: document.getElementById("totalDownloaded"),
+    totalUploaded: document.getElementById("totalUploaded"),
+    totalTransferred: document.getElementById("totalTransferred")
+};
 
 const PING_SAMPLE_COUNT = 5;
+const DOWNLOAD_SIZE = 4 * 1024 * 1024;
+const UPLOAD_SIZE = 4 * 1024 * 1024;
+
+const usage = {
+    downloadedBytes: 0,
+    uploadedBytes: 0
+};
+
+function toMB(bytes) {
+    return (bytes / 1_000_000).toFixed(2);
+}
+
+function calculateMbps(bytes, seconds) {
+    if (seconds <= 0) {
+        throw new Error("Invalid measurement duration");
+    }
+
+    return (bytes * 8) / (seconds * 1_000_000);
+}
+
+function updateUsage() {
+    const total = usage.downloadedBytes + usage.uploadedBytes;
+
+    ui.totalDownloaded.textContent =
+        `İndirilen gövde verisi: ${toMB(usage.downloadedBytes)} MB`;
+
+    ui.totalUploaded.textContent =
+        `Yüklenen gövde verisi: ${toMB(usage.uploadedBytes)} MB`;
+
+    ui.totalTransferred.textContent =
+        `Toplam test gövdesi: ${toMB(total)} MB`;
+}
+
+function resetUI() {
+    usage.downloadedBytes = 0;
+    usage.uploadedBytes = 0;
+
+    ui.overallProgress.value = 0;
+    ui.overallStatus.textContent = "Test hazırlanıyor...";
+
+    ui.pingStatus.textContent = "Bekliyor";
+    ui.downloadStatus.textContent = "Bekliyor";
+    ui.uploadStatus.textContent = "Bekliyor";
+
+    ui.pingResult.textContent = "-- ms";
+    ui.downloadResult.textContent = "-- Mbps";
+    ui.uploadResult.textContent = "-- Mbps";
+
+    ui.pingDetails.textContent = "";
+    ui.downloadDetails.textContent = "";
+    ui.uploadDetails.textContent = "";
+
+    updateUsage();
+}
+
+// -----------------------------------------
+// 1. HTTP PING TEST
+// -----------------------------------------
 
 async function measurePingOnce() {
     const startTime = performance.now();
@@ -14,86 +89,73 @@ async function measurePingOnce() {
     });
 
     if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
+        throw new Error(`Ping HTTP ${response.status}`);
     }
 
-    const responseBody = await response.arrayBuffer();
-    const endTime = performance.now();
+    const body = await response.arrayBuffer();
+    const durationMs = performance.now() - startTime;
+
+    usage.downloadedBytes += body.byteLength;
+    updateUsage();
 
     return {
-        durationMs: endTime - startTime,
-        bodyBytes: responseBody.byteLength
+        durationMs,
+        bodyBytes: body.byteLength
     };
 }
 
-function calculateMedian(values) {
-    const sorted = [...values].sort((a, b) => a - b);
-    return sorted[Math.floor(sorted.length / 2)];
+async function runPingTest() {
+    ui.pingStatus.textContent = "Bağlantı hazırlanıyor...";
+
+    const initialBytes = usage.downloadedBytes;
+    await measurePingOnce(); // Warm-up request.
+
+    const samples = [];
+
+    for (let i = 0; i < PING_SAMPLE_COUNT; i++) {
+        ui.pingStatus.textContent =
+            `Ölçülüyor: ${i + 1}/${PING_SAMPLE_COUNT}`;
+
+        const sample = await measurePingOnce();
+        samples.push(sample.durationMs);
+    }
+
+    const sorted = [...samples].sort((a, b) => a - b);
+    const median = sorted[Math.floor(sorted.length / 2)];
+
+    const pingBytes = usage.downloadedBytes - initialBytes;
+
+    ui.pingResult.textContent = `${median.toFixed(2)} ms`;
+
+    ui.pingDetails.textContent =
+        `Isınma dahil alınan yanıt gövdeleri: ${pingBytes} byte`;
+
+    ui.pingStatus.textContent = "Tamamlandı";
+
+    console.log("Ping results:", samples);
+
+    return {
+        medianMs: median,
+        downloadedBytes: pingBytes
+    };
 }
 
-startButton.addEventListener("click", async () => {
-    startButton.disabled = true;
-    pingResult.textContent = "-- ms";
-    dataUsage.textContent = "";
+// -----------------------------------------
+// 2. DOWNLOAD SPEED TEST
+// -----------------------------------------
 
-    try {
-        statusText.textContent = "Bağlantı hazırlanıyor...";
-
-        const warmup = await measurePingOnce();
-        let totalBodyBytes = warmup.bodyBytes;
-
-        const measurements = [];
-
-        for (let i = 0; i < PING_SAMPLE_COUNT; i++) {
-            statusText.textContent =
-                `Ping ölçülüyor: ${i + 1}/${PING_SAMPLE_COUNT}`;
-
-            const sample = await measurePingOnce();
-
-            measurements.push(sample.durationMs);
-            totalBodyBytes += sample.bodyBytes;
-        }
-
-        const medianPing = calculateMedian(measurements);
-
-        pingResult.textContent = `${medianPing.toFixed(2)} ms`;
-
-        dataUsage.textContent =
-            `Alınan yanıt gövdeleri (ısınma dahil): ` +
-            `${totalBodyBytes} byte`;
-
-        statusText.textContent = "Ping testi tamamlandı.";
-
-        console.log("Ping measurements (ms):", measurements);
-
-    } catch (error) {
-        statusText.textContent = `Test başarısız: ${error.message}`;
-        console.error(error);
-
-    } finally {
-        startButton.disabled = false;
-    }
-});
-
-const downloadButton = document.getElementById("startDownload");
-const downloadStatus = document.getElementById("downloadStatus");
-const downloadResult = document.getElementById("downloadResult");
-const downloadDetails = document.getElementById("downloadDetails");
-
-// 4 MiB test payload
-const DOWNLOAD_SIZE = 4 * 1024 * 1024;
-
-async function measureDownload() {
-    const url = `/api/download?size=${DOWNLOAD_SIZE}`;
+async function runDownloadTest() {
+    ui.downloadStatus.textContent = "İndirme başlıyor...";
 
     const startTime = performance.now();
 
-    const response = await fetch(url, {
-        cache: "no-store"
-    });
+    const response = await fetch(
+        `/api/download?size=${DOWNLOAD_SIZE}`,
+        { cache: "no-store" }
+    );
 
     if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
+        throw new Error(`Download HTTP ${response.status}`);
     }
 
     const encoding = response.headers.get("Content-Encoding");
@@ -103,7 +165,7 @@ async function measureDownload() {
     }
 
     if (!response.body) {
-        throw new Error("Response stream is unavailable");
+        throw new Error("Download stream unavailable");
     }
 
     const reader = response.body.getReader();
@@ -117,15 +179,19 @@ async function measureDownload() {
         }
 
         downloadedBytes += value.byteLength;
+        usage.downloadedBytes += value.byteLength;
 
         const percentage =
             (downloadedBytes / DOWNLOAD_SIZE) * 100;
 
-        downloadStatus.textContent =
+        ui.downloadStatus.textContent =
             `İndiriliyor: ${percentage.toFixed(1)}%`;
+
+        updateUsage();
     }
 
-    const endTime = performance.now();
+    const durationSeconds =
+        (performance.now() - startTime) / 1000;
 
     if (downloadedBytes !== DOWNLOAD_SIZE) {
         throw new Error(
@@ -133,69 +199,33 @@ async function measureDownload() {
         );
     }
 
-    const durationSeconds = (endTime - startTime) / 1000;
-
-    if (durationSeconds <= 0) {
-        throw new Error("Invalid measurement duration");
-    }
-
     const speedMbps =
-        (downloadedBytes * 8) /
-        (durationSeconds * 1_000_000);
+        calculateMbps(downloadedBytes, durationSeconds);
 
-    return {
+    ui.downloadResult.textContent =
+        `${speedMbps.toFixed(2)} Mbps`;
+
+    ui.downloadDetails.textContent =
+        `İndirilen: ${toMB(downloadedBytes)} MB | ` +
+        `Süre: ${durationSeconds.toFixed(3)} s`;
+
+    ui.downloadStatus.textContent = "Tamamlandı";
+
+    const result = {
         speedMbps,
         durationSeconds,
         downloadedBytes
     };
+
+    console.log("Download result:", result);
+
+    return result;
 }
 
-downloadButton.addEventListener("click", async () => {
-    downloadButton.disabled = true;
-    downloadResult.textContent = "-- Mbps";
-    downloadDetails.textContent = "";
-    downloadStatus.textContent = "Download başlatılıyor...";
+// -----------------------------------------
+// 3. UPLOAD SPEED TEST
+// -----------------------------------------
 
-    try {
-        const result = await measureDownload();
-
-        downloadResult.textContent =
-            `${result.speedMbps.toFixed(2)} Mbps`;
-
-        const downloadedMB =
-            result.downloadedBytes / 1_000_000;
-
-        downloadDetails.textContent =
-            `İndirilen: ${downloadedMB.toFixed(2)} MB | ` +
-            `Süre: ${result.durationSeconds.toFixed(3)} s`;
-
-        downloadStatus.textContent = "Download tamamlandı.";
-
-        console.log("Download result:", result);
-
-    } catch (error) {
-        downloadStatus.textContent =
-            `Download başarısız: ${error.message}`;
-
-        console.error(error);
-
-    } finally {
-        downloadButton.disabled = false;
-    }
-});
-
-// ==========================================
-// UPLOAD SPEED TEST
-// ==========================================
-
-const uploadButton = document.getElementById("startUpload");
-const uploadStatus = document.getElementById("uploadStatus");
-const uploadResult = document.getElementById("uploadResult");
-const uploadDetails = document.getElementById("uploadDetails");
-
-const UPLOAD_SIZE = 4 * 1024 * 1024;
-
-// Prepare the test payload before measuring upload time.
 function createUploadData(sizeBytes) {
     const data = new Uint8Array(sizeBytes);
     const chunkSize = 65536;
@@ -209,24 +239,23 @@ function createUploadData(sizeBytes) {
     return data;
 }
 
-// Upload data and verify the amount received by the server.
-function measureUploadSpeed(data) {
+function sendUpload(data) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        let startTime = 0;
+        let startTime;
 
         xhr.upload.addEventListener("progress", (event) => {
             if (event.lengthComputable && event.total > 0) {
                 const percentage =
-                    (event.loaded / event.total) * 100;
+                    Math.min(100, event.loaded / event.total * 100);
 
-                uploadStatus.textContent =
+                ui.uploadStatus.textContent =
                     `Yükleniyor: ${percentage.toFixed(1)}%`;
             }
         });
 
         xhr.upload.addEventListener("load", () => {
-            uploadStatus.textContent =
+            ui.uploadStatus.textContent =
                 "Veri gönderildi, sunucu doğruluyor...";
         });
 
@@ -241,10 +270,11 @@ function measureUploadSpeed(data) {
         );
 
         xhr.onload = () => {
-            const endTime = performance.now();
+            const durationSeconds =
+                (performance.now() - startTime) / 1000;
 
             if (xhr.status !== 200) {
-                reject(new Error(`HTTP ${xhr.status}`));
+                reject(new Error(`Upload HTTP ${xhr.status}`));
                 return;
             }
 
@@ -254,86 +284,117 @@ function measureUploadSpeed(data) {
                 xhr.response?.status !== "ok" ||
                 receivedBytes !== data.byteLength
             ) {
-                reject(new Error(
-                    `Byte verification failed: ` +
-                    `sent ${data.byteLength}, ` +
-                    `received ${receivedBytes}`
-                ));
+                reject(
+                    new Error("Upload byte verification failed")
+                );
                 return;
             }
-
-            const durationSeconds =
-                (endTime - startTime) / 1000;
-
-            if (durationSeconds <= 0) {
-                reject(new Error("Invalid measurement duration"));
-                return;
-            }
-
-            const speedMbps =
-                (receivedBytes * 8) /
-                (durationSeconds * 1_000_000);
 
             resolve({
-                speedMbps,
+                speedMbps: calculateMbps(
+                    receivedBytes,
+                    durationSeconds
+                ),
                 durationSeconds,
                 uploadedBytes: receivedBytes
             });
         };
 
-        xhr.onerror = () => {
-            reject(new Error("Network error"));
-        };
+        xhr.onerror = () =>
+            reject(new Error("Upload network error"));
 
-        xhr.ontimeout = () => {
-            reject(new Error("Upload timed out"));
-        };
+        xhr.ontimeout = () =>
+            reject(new Error("Upload timeout"));
 
-        xhr.onabort = () => {
-            reject(new Error("Upload cancelled"));
-        };
+        xhr.onabort = () =>
+            reject(new Error("Upload aborted"));
 
         startTime = performance.now();
         xhr.send(data);
     });
 }
 
-// Connect the Upload button to the measurement function.
-uploadButton.addEventListener("click", async () => {
-    uploadButton.disabled = true;
-    uploadResult.textContent = "-- Mbps";
-    uploadDetails.textContent = "";
+async function runUploadTest() {
+    ui.uploadStatus.textContent = "Test verisi hazırlanıyor...";
+
+    const data = createUploadData(UPLOAD_SIZE);
+
+    ui.uploadStatus.textContent = "Upload başlatılıyor...";
+
+    const result = await sendUpload(data);
+
+    // Count only server-confirmed upload bytes.
+    usage.uploadedBytes += result.uploadedBytes;
+    updateUsage();
+
+    ui.uploadResult.textContent =
+        `${result.speedMbps.toFixed(2)} Mbps`;
+
+    ui.uploadDetails.textContent =
+        `Yüklenen: ${toMB(result.uploadedBytes)} MB | ` +
+        `Süre: ${result.durationSeconds.toFixed(3)} s`;
+
+    ui.uploadStatus.textContent = "Tamamlandı";
+
+    console.log("Upload result:", result);
+
+    return result;
+}
+
+// -----------------------------------------
+// COMPLETE TEST SEQUENCE
+// -----------------------------------------
+
+ui.startButton.addEventListener("click", async () => {
+    ui.startButton.disabled = true;
+    resetUI();
+
+    let activeStatus = null;
 
     try {
-        uploadStatus.textContent = "Test verisi hazırlanıyor...";
+        // Step 1: Ping
+        ui.overallStatus.textContent = "1/3 - Ping ölçülüyor";
+        activeStatus = ui.pingStatus;
 
-        const data = createUploadData(UPLOAD_SIZE);
+        const ping = await runPingTest();
+        ui.overallProgress.value = 1;
 
-        uploadStatus.textContent = "Upload başlatılıyor...";
+        // Step 2: Download
+        ui.overallStatus.textContent = "2/3 - Download ölçülüyor";
+        activeStatus = ui.downloadStatus;
 
-        const result = await measureUploadSpeed(data);
+        const download = await runDownloadTest();
+        ui.overallProgress.value = 2;
 
-        const uploadedMB =
-            result.uploadedBytes / 1_000_000;
+        // Step 3: Upload
+        ui.overallStatus.textContent = "3/3 - Upload ölçülüyor";
+        activeStatus = ui.uploadStatus;
 
-        uploadResult.textContent =
-            `${result.speedMbps.toFixed(2)} Mbps`;
+        const upload = await runUploadTest();
+        ui.overallProgress.value = 3;
 
-        uploadDetails.textContent =
-            `Yüklenen: ${uploadedMB.toFixed(2)} MB | ` +
-            `Süre: ${result.durationSeconds.toFixed(3)} s`;
+        ui.overallStatus.textContent =
+            "Tüm testler başarıyla tamamlandı.";
 
-        uploadStatus.textContent = "Upload tamamlandı.";
-
-        console.log("Upload result:", result);
+        console.log("Complete speed test:", {
+            ping,
+            download,
+            upload,
+            usage: { ...usage }
+        });
 
     } catch (error) {
-        uploadStatus.textContent =
-            `Upload başarısız: ${error.message}`;
+        ui.overallStatus.textContent =
+            `Test başarısız: ${error.message}`;
 
-        console.error("Upload error:", error);
+        if (activeStatus) {
+            activeStatus.textContent =
+                `Hata: ${error.message}`;
+        }
+
+        console.error("Speed test error:", error);
 
     } finally {
-        uploadButton.disabled = false;
+        ui.startButton.disabled = false;
     }
 });
