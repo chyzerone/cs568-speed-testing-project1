@@ -1,6 +1,6 @@
 import os
 
-from fastapi import Query
+from fastapi import FastAPI, Query, Request, HTTPException
 from fastapi.responses import StreamingResponse
 from pathlib import Path
 
@@ -69,3 +69,33 @@ def download(
             "X-Content-Type-Options": "nosniff"
         }
     )
+
+# Maximum upload payload: 16 MiB.
+MAX_UPLOAD_BYTES = 16 * 1024 * 1024
+
+@app.post("/api/upload")
+async def upload(request: Request):
+    received_bytes = 0
+
+    # Read incoming request data in chunks.
+    async for chunk in request.stream():
+        received_bytes += len(chunk)
+
+        # Reject requests exceeding the upload limit.
+        if received_bytes > MAX_UPLOAD_BYTES:
+            raise HTTPException(
+                status_code=413,
+                detail="Upload size limit exceeded"
+            )
+
+    if received_bytes == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Empty upload is not allowed"
+        )
+
+    # Confirm how many bytes were actually read.
+    return {
+        "status": "ok",
+        "received_bytes": received_bytes
+    }
