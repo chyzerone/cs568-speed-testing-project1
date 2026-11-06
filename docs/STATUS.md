@@ -1,69 +1,74 @@
-# CS 568.A — Project 1: Speed Testing
+# CS 568.A - Project 1: Speed Testing
 
-## Güncel durum — 5 Kasım 2026
+## Bizim son durumumuz - 6 Kasım 2026
 
 **Ekip:** Emre Karataş ve Furkan Çağatay Ekinci
 
-**Repository:** https://github.com/chyzerone/cs568-speed-testing-project1
+**GitHub:** https://github.com/chyzerone/cs568-speed-testing-project1
 
-**Son doğrulanmış geliştirme commit'i:** `d84b93d`
+**Canlı site:** https://cs568-speed-testing-project1.onrender.com/
 
-**Aktif geliştirici devri:** Emre → Furkan
+**İngilizce arayüzü tamamladığımız commit:** `c868780` (Translate user interface to English)
 
-### Tamamlanan çalışmalar
+**Şu anda çalışmaya devam eden:** Emre
 
-- ✅ İki Windows bilgisayarında Python 3.14.10, Git ve VS Code ortamı hazırlandı.
-- ✅ FastAPI ve Uvicorn backend oluşturuldu.
-- ✅ HTTP Ping modülü geliştirildi ve yerelde test edildi.
-- ✅ Download ve Upload ölçümleri geliştirildi.
-- ✅ Sunucunun aldığı Upload byte miktarı doğrulandı.
-- ✅ Ping → Download → Upload tek Başlat düğmesiyle birleştirildi.
-- ✅ Test ilerlemesi ve veri kullanım göstergeleri eklendi.
-- ✅ Responsive CSS tasarımı ve ekip footer'ı eklendi.
-- ✅ Değişiklikler GitHub main branch'ine gönderildi.
+## Şimdiye kadar neler yaptık?
 
-### Son yerel ölçüm örneği
+- ✅ İki Windows bilgisayarında Python 3.14.10, Git ve VS Code ortamını hazırladık.
+- ✅ FastAPI ile Ping, Download ve Upload endpoint'lerini yazdık.
+- ✅ JavaScript tarafında üç testi tek **Start Test** düğmesine bağladık.
+- ✅ Ping için bir ısınma isteği ve beş ölçüm kullanıyoruz; ortanca değeri gösteriyoruz.
+- ✅ Download verisini gerçekten okuyup byte sayısını kontrol ediyoruz.
+- ✅ Upload'da sunucunun aldığı byte miktarını doğruluyoruz.
+- ✅ Test ilerlemesini, hız sonuçlarını ve kullanılan test verisini ekranda gösteriyoruz.
+- ✅ Arayüzü İngilizceye çevirdik ve ekip bilgilerini footer'a ekledik.
+- ✅ Uygulamayı Render Free üzerinde Frankfurt bölgesinde yayınladık.
+- ✅ Gerçek internet üzerinden testler yaptık, farklı veri boyutları denedik ve Ookla ile karşılaştırdık.
+- ✅ Emre'nin bilgisayarını `c868780` sürümüne eşitledik; yerel testler çalışıyor.
 
-Emre'nin localhost testinden:
+## Denemelerimiz ve seçtiğimiz ayarlar
 
-| Ölçüm | Sonuç |
-|---|---|
-| HTTP Ping | 6.40 ms |
-| Download | 1853.84 Mbps |
-| Upload | 1023.00 Mbps |
-| Download verisi | 4,194,304 byte |
-| Upload verisi | 4,194,304 byte |
-| Toplam sayılan test gövdesi | 8,388,620 byte |
+İlk başta Download ve Upload için 4 MiB kullanıyorduk. Render'da üç test yaptığımızda ortalama **96.17 ms HTTP Ping**, **36.02 Mbps Download** ve **8.77 Mbps Upload** gördük.
 
-**Not:** Bu sonuçlar localhost ortamında alınmıştır; gerçek internet bağlantı hızı olarak yorumlanmamalıdır. Veri kullanım sayacı tüm ağ protokolü ek yükünü kapsamamaktadır.
+Download boyutunu karşılaştırınca şu sonuçları aldık:
 
-### Şu anda devam eden aşama
+| Download boyutu | Hız | Süre |
+|---|---:|---:|
+| 4 MiB | 33.18 Mbps | 1.011 s |
+| 8 MiB | 43.73 Mbps | 1.535 s |
 
-🔄 **Render Free üzerinde FastAPI uygulamasının yayınlanması**
+8 MiB testinde daha yüksek bir hız gördüğümüz için şu an **8 MiB Download + 4 MiB Upload** kullanıyoruz. Fazladan bir ön indirme yapmıyoruz. Adaptif bir test sistemi de eklemedik; sabit boyutların sonuçlarımızı nasıl etkilediğini deneyerek gördük.
 
-Emre, Render hesabını oluşturdu. GitHub uygulamasında depo seçimi sırasında sorun yaşandı çünkü depo `chyzerone` hesabına ait. Furkan, Render GitHub uygulamasını kendi hesabına ve yalnızca proje deposuna yetkilendirerek kuruluma devam edecek.
+Başarılı bir tam testte saydığımız veri: **12 byte Ping yanıtı + 8,388,608 byte Download + 4,194,304 byte Upload = 12,582,924 byte (12.58 MB)**. Bu sayaca ağ protokolünün ek yükü dahil değil.
 
-### Bekleyen çalışmalar
+## Kaydettiğimiz son sonuçlar
 
-- ⬜ Render Free Web Service oluşturulması
-- ⬜ Public HTTPS URL üzerinden uçtan uca test
-- ⬜ Sunucu performansı ve ölçüm güvenilirliği
-- ⬜ Veri boyutu ve ölçüm süresi optimizasyonu
-- ⬜ Referans hız testleriyle karşılaştırma
-- ⬜ README ve kurulum dokümantasyonunun tamamlanması
-- ⬜ Teslim ZIP dosyasının hazırlanması
-- ⬜ Demo provası ve Google Classroom teslimi
+| Nerede test yaptık? | HTTP Ping | Download | Upload |
+|---|---:|---:|---:|
+| Furkan - Render | 85.90 ms | 43.19 Mbps | 8.12 Mbps |
+| Furkan - Render, İngilizce arayüz | 87.50 ms | 43.01 Mbps | 8.73 Mbps |
+| Emre - Render, 6 Kasım | 57.80 ms | 50.02 Mbps | 49.87 Mbps |
+| Emre - localhost, 6 Kasım | 6.40 ms | 2807.90 Mbps | 1177.35 Mbps |
 
-### Teknoloji
+Localhost testinde tarayıcıyla sunucu aynı bilgisayarda çalışıyor. Bu yüzden oradaki yüksek hızları internet hızı olarak değerlendirmiyoruz. Render sonuçlarımız da farklı bağlantı veya zamanlarda alınmış olabilir; bunları aynı koşullarda tekrarlanmış testler gibi yorumlamıyoruz.
 
-Python 3.14.10, FastAPI, Uvicorn, Vanilla JavaScript, HTML5 ve CSS3.
+Ookla'da Frankfurt sunucularıyla karşılaştırma da yaptık:
 
-### Teslim bilgisi
+- **GSL Network:** 45 ms Ping, 69.80 Mbps Download, 12.03 Mbps Upload.
+- **Melbicom:** 50 ms Ping, 65.48 Mbps Download, 9.95 Mbps Upload.
 
-Son teslim günü: **7 Kasım 2026 Cumartesi**.
+Bizim Download sonuçlarımız daha düşük kaldı. Tek bağlantıyla ölçüm yapmamız, sunucu farkları ve Render Free'nin sınırlamaları etkili olabilir. Farkın tamamını tek bir sebebe bağlayamıyoruz. Ayrıca bizim HTTP Ping ölçümümüz, Ookla Ping ile tamamen aynı yöntem değil.
 
-Google Classroom'daki kesin son teslim saati henüz doğrulanmadı.
+## Hâlâ yapacaklarımız
 
-### Sonraki geliştirici
+- 🔄 README ve bu durum dosyasının son hâlini projeye eklemek.
+- 🔄 Sekme ikonu (favicon) ekleyip tarayıcıda kontrol etmek.
+- ⬜ `git diff --check` ve `git status` ile son kontrolü yapmak, değişiklikleri GitHub'a göndermek.
+- ⬜ Projeyi temiz bir klasörde README'ye göre çalıştırmayı denemek.
+- ⬜ Sadece gerekli dosyalardan **`Karatas_Ekinci_project1.zip`** oluşturmak ve ZIP içeriğini kontrol etmek.
+- ⬜ Google Classroom'a yüklemek. **7 Kasım 2026** son teslim günü; kesin saati Classroom'dan tekrar bakacağız.
+- ⬜ Demodan önce ikimiz de Ping, Download, Upload, Mbps formülü ve sunucu farklarını anlatmayı prova edeceğiz.
 
-**Furkan Çağatay Ekinci:** Önce GitHub'dan güncel main branch'ini al. Sonra Render Free üzerinde Web Service oluşturup uygulamayı yayınla. Başarılı URL'yi ve test sonuçlarını bu belgeye ekle.
+## Kod tarafındaki kararımız
+
+Ölçüm motoruna yeni özellik eklemiyoruz. Mevcut yöntem çalışıyor ve neden 8 MiB seçtiğimizi açıklayabiliyoruz. Render Free'nin hız üzerinde etkisi olabilir ama bunu kesin olarak ölçüp ayırmadık. Bu sınırları README'de açıkça anlatıyoruz; şimdi önceliğimiz temiz ve sorunsuz teslim.
