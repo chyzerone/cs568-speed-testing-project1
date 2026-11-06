@@ -46,13 +46,13 @@ function updateUsage() {
     const total = usage.downloadedBytes + usage.uploadedBytes;
 
     ui.totalDownloaded.textContent =
-        `İndirilen gövde verisi: ${toMB(usage.downloadedBytes)} MB`;
+        `Downloaded payload: ${toMB(usage.downloadedBytes)} MB`;
 
     ui.totalUploaded.textContent =
-        `Yüklenen gövde verisi: ${toMB(usage.uploadedBytes)} MB`;
+        `Uploaded payload: ${toMB(usage.uploadedBytes)} MB`;
 
     ui.totalTransferred.textContent =
-        `Toplam test gövdesi: ${toMB(total)} MB`;
+        `Total test payload: ${toMB(total)} MB`;
 }
 
 function resetUI() {
@@ -60,11 +60,11 @@ function resetUI() {
     usage.uploadedBytes = 0;
 
     ui.overallProgress.value = 0;
-    ui.overallStatus.textContent = "Test hazırlanıyor...";
+    ui.overallStatus.textContent = "Preparing test...";
 
-    ui.pingStatus.textContent = "Bekliyor";
-    ui.downloadStatus.textContent = "Bekliyor";
-    ui.uploadStatus.textContent = "Bekliyor";
+    ui.pingStatus.textContent = "Waiting";
+    ui.downloadStatus.textContent = "Waiting";
+    ui.uploadStatus.textContent = "Waiting";
 
     ui.pingResult.textContent = "-- ms";
     ui.downloadResult.textContent = "-- Mbps";
@@ -105,7 +105,7 @@ async function measurePingOnce() {
 }
 
 async function runPingTest() {
-    ui.pingStatus.textContent = "Bağlantı hazırlanıyor...";
+    ui.pingStatus.textContent = "Preparing connection...";
 
     const initialBytes = usage.downloadedBytes;
     await measurePingOnce(); // Warm-up request.
@@ -114,7 +114,7 @@ async function runPingTest() {
 
     for (let i = 0; i < PING_SAMPLE_COUNT; i++) {
         ui.pingStatus.textContent =
-            `Ölçülüyor: ${i + 1}/${PING_SAMPLE_COUNT}`;
+            `Measuring: ${i + 1}/${PING_SAMPLE_COUNT}`;
 
         const sample = await measurePingOnce();
         samples.push(sample.durationMs);
@@ -128,9 +128,9 @@ async function runPingTest() {
     ui.pingResult.textContent = `${median.toFixed(2)} ms`;
 
     ui.pingDetails.textContent =
-        `Isınma dahil alınan yanıt gövdeleri: ${pingBytes} byte`;
+        `Ping response payloads (including warm-up): ${pingBytes} byte`;
 
-    ui.pingStatus.textContent = "Tamamlandı";
+    ui.pingStatus.textContent = "Completed";
 
     console.log("Ping results:", samples);
 
@@ -145,7 +145,7 @@ async function runPingTest() {
 // -----------------------------------------
 
 async function runDownloadTest() {
-    ui.downloadStatus.textContent = "İndirme başlıyor...";
+    ui.downloadStatus.textContent = "Starting download...";
 
     const startTime = performance.now();
 
@@ -185,7 +185,7 @@ async function runDownloadTest() {
             (downloadedBytes / DOWNLOAD_SIZE) * 100;
 
         ui.downloadStatus.textContent =
-            `İndiriliyor: ${percentage.toFixed(1)}%`;
+            `Downloading: ${percentage.toFixed(1)}%`;
 
         updateUsage();
     }
@@ -206,10 +206,10 @@ async function runDownloadTest() {
         `${speedMbps.toFixed(2)} Mbps`;
 
     ui.downloadDetails.textContent =
-        `İndirilen: ${toMB(downloadedBytes)} MB | ` +
-        `Süre: ${durationSeconds.toFixed(3)} s`;
+        `Downloaded: ${toMB(downloadedBytes)} MB | ` +
+        `Duration: ${durationSeconds.toFixed(3)} s`;
 
-    ui.downloadStatus.textContent = "Tamamlandı";
+    ui.downloadStatus.textContent = "Completed";
 
     const result = {
         speedMbps,
@@ -250,13 +250,13 @@ function sendUpload(data) {
                     Math.min(100, event.loaded / event.total * 100);
 
                 ui.uploadStatus.textContent =
-                    `Yükleniyor: ${percentage.toFixed(1)}%`;
+                    `Uploading: ${percentage.toFixed(1)}%`;
             }
         });
 
         xhr.upload.addEventListener("load", () => {
             ui.uploadStatus.textContent =
-                "Veri gönderildi, sunucu doğruluyor...";
+                "Data sent, awaiting server confirmation...";
         });
 
         xhr.open("POST", "/api/upload", true);
@@ -315,11 +315,11 @@ function sendUpload(data) {
 }
 
 async function runUploadTest() {
-    ui.uploadStatus.textContent = "Test verisi hazırlanıyor...";
+    ui.uploadStatus.textContent = "Preparing test data...";
 
     const data = createUploadData(UPLOAD_SIZE);
 
-    ui.uploadStatus.textContent = "Upload başlatılıyor...";
+    ui.uploadStatus.textContent = "Starting upload...";
 
     const result = await sendUpload(data);
 
@@ -331,10 +331,10 @@ async function runUploadTest() {
         `${result.speedMbps.toFixed(2)} Mbps`;
 
     ui.uploadDetails.textContent =
-        `Yüklenen: ${toMB(result.uploadedBytes)} MB | ` +
-        `Süre: ${result.durationSeconds.toFixed(3)} s`;
+        `Uploaded: ${toMB(result.uploadedBytes)} MB | ` +
+        `Duration: ${result.durationSeconds.toFixed(3)} s`;
 
-    ui.uploadStatus.textContent = "Tamamlandı";
+    ui.uploadStatus.textContent = "Completed";
 
     console.log("Upload result:", result);
 
@@ -353,28 +353,28 @@ ui.startButton.addEventListener("click", async () => {
 
     try {
         // Step 1: Ping
-        ui.overallStatus.textContent = "1/3 - Ping ölçülüyor";
+        ui.overallStatus.textContent = "1/3 - Measuring ping";
         activeStatus = ui.pingStatus;
 
         const ping = await runPingTest();
         ui.overallProgress.value = 1;
 
         // Step 2: Download
-        ui.overallStatus.textContent = "2/3 - Download ölçülüyor";
+        ui.overallStatus.textContent = "2/3 - Measuring download speed";
         activeStatus = ui.downloadStatus;
 
         const download = await runDownloadTest();
         ui.overallProgress.value = 2;
 
         // Step 3: Upload
-        ui.overallStatus.textContent = "3/3 - Upload ölçülüyor";
+        ui.overallStatus.textContent = "3/3 - Measuring upload speed";
         activeStatus = ui.uploadStatus;
 
         const upload = await runUploadTest();
         ui.overallProgress.value = 3;
 
         ui.overallStatus.textContent =
-            "Tüm testler başarıyla tamamlandı.";
+            "All tests completed successfully.";
 
         console.log("Complete speed test:", {
             ping,
@@ -385,11 +385,11 @@ ui.startButton.addEventListener("click", async () => {
 
     } catch (error) {
         ui.overallStatus.textContent =
-            `Test başarısız: ${error.message}`;
+            `Test failed: ${error.message}`;
 
         if (activeStatus) {
             activeStatus.textContent =
-                `Hata: ${error.message}`;
+                `Error: ${error.message}`;
         }
 
         console.error("Speed test error:", error);

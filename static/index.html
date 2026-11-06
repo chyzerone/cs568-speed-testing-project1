@@ -1,13 +1,13 @@
 
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
     <meta name="description"
-          content="CS 568.A web tabanlı HTTP hız testi">
+          content="CS 568.A web-based HTTP speed test">
 
     <title>Speed Testing | CS 568.A</title>
 
@@ -37,18 +37,18 @@
             </p>
 
             <h1 id="pageTitle">
-                Bağlantını <span>ölç.</span>
+                Test your <span>connection.</span>
             </h1>
 
             <p class="hero-description">
-                Tarayıcın ile test sunucusu arasındaki
-                HTTP gecikmesini, indirme ve yükleme
-                performansını tek işlemde ölç.
+                Measure HTTP latency, download, and upload
+                performance between your browser and
+                our test server in a single click.
             </p>
 
             <div class="hero-actions">
                 <button id="startAll" class="start-button">
-                    Testi Başlat
+                    Start Test
                 </button>
 
                 <span class="test-hint">
@@ -58,14 +58,14 @@
 
             <div class="progress-container">
                 <p id="overallStatus" aria-live="polite">
-                    Test bekleniyor.
+                    Ready to start.
                 </p>
 
                 <progress
                     id="overallProgress"
                     value="0"
                     max="3"
-                    aria-label="Test ilerlemesi">
+                    aria-label="Test progress">
                 </progress>
             </div>
         </section>
@@ -73,9 +73,9 @@
         <div class="section-heading">
             <div>
                 <p class="eyebrow">LIVE MEASUREMENTS</p>
-                <h2>Ölçüm Sonuçları</h2>
+                <h2>Test Results</h2>
             </div>
-            <span class="section-note">HTTP tabanlı ölçüm</span>
+            <span class="section-note">HTTP-based measurement</span>
         </div>
 
         <div class="metrics-grid">
@@ -88,7 +88,7 @@
 
                 <h3>Ping</h3>
                 <p class="metric-description">
-                    HTTP gidiş-dönüş gecikmesi
+                    HTTP round-trip latency
                 </p>
 
                 <output id="pingResult" class="metric-value">
@@ -96,7 +96,7 @@
                 </output>
 
                 <p id="pingStatus" class="metric-status">
-                    Bekliyor
+                    Waiting
                 </p>
 
                 <p id="pingDetails" class="metric-details"></p>
@@ -110,7 +110,7 @@
 
                 <h3>Download</h3>
                 <p class="metric-description">
-                    Sunucudan alınan veri hızı
+                    Data received from the server
                 </p>
 
                 <output id="downloadResult" class="metric-value">
@@ -118,7 +118,7 @@
                 </output>
 
                 <p id="downloadStatus" class="metric-status">
-                    Bekliyor
+                    Waiting
                 </p>
 
                 <p id="downloadDetails" class="metric-details"></p>
@@ -132,7 +132,7 @@
 
                 <h3>Upload</h3>
                 <p class="metric-description">
-                    Sunucuya gönderilen veri hızı
+                    Data sent to the server
                 </p>
 
                 <output id="uploadResult" class="metric-value">
@@ -140,7 +140,7 @@
                 </output>
 
                 <p id="uploadStatus" class="metric-status">
-                    Bekliyor
+                    Waiting
                 </p>
 
                 <p id="uploadDetails" class="metric-details"></p>
@@ -151,29 +151,29 @@
             <div class="usage-heading">
                 <div>
                     <p class="eyebrow">TRANSFER REPORT</p>
-                    <h2 id="usageTitle">Veri Kullanımı</h2>
+                    <h2 id="usageTitle">Data Usage</h2>
                 </div>
-                <span class="usage-note">Test gövdesi verileri</span>
+                <span class="usage-note">Test payload data</span>
             </div>
 
             <div class="usage-grid">
                 <p id="totalDownloaded">
-                    İndirilen: -- MB
+                    Downloaded: -- MB
                 </p>
 
                 <p id="totalUploaded">
-                    Yüklenen: -- MB
+                    Uploaded: -- MB
                 </p>
 
                 <p id="totalTransferred">
-                    Toplam: -- MB
+                    Total: -- MB
                 </p>
             </div>
 
             <p class="usage-disclaimer">
-                Gösterilen veri miktarları, sayılan HTTP test
-                gövdelerini kapsar. Protokol ek yükleri ve
-                tüm yardımcı trafik dahil değildir.
+                Displayed data amounts cover counted HTTP test
+                payloads. Protocol overhead and
+                other auxiliary traffic are not included.
             </p>
         </section>
 
