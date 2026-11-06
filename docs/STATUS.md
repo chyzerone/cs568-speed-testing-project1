@@ -59,16 +59,16 @@ Ookla'da Frankfurt sunucularıyla karşılaştırma da yaptık:
 
 Bizim Download sonuçlarımız daha düşük kaldı. Tek bağlantıyla ölçüm yapmamız, sunucu farkları ve Render Free'nin sınırlamaları etkili olabilir. Farkın tamamını tek bir sebebe bağlayamıyoruz. Ayrıca bizim HTTP Ping ölçümümüz, Ookla Ping ile tamamen aynı yöntem değil.
 
-## Hâlâ yapacaklarımız
+## Teslim öncesi son durum
 
-- 🔄 README ve bu durum dosyasının son hâlini projeye eklemek.
-- 🔄 Sekme ikonu (favicon) ekleyip tarayıcıda kontrol etmek.
-- ⬜ `git diff --check` ve `git status` ile son kontrolü yapmak, değişiklikleri GitHub'a göndermek.
-- ⬜ Projeyi temiz bir klasörde README'ye göre çalıştırmayı denemek.
-- ⬜ Sadece gerekli dosyalardan **`Karatas_Ekinci_project1.zip`** oluşturmak ve ZIP içeriğini kontrol etmek.
-- ⬜ Google Classroom'a yüklemek. **7 Kasım 2026** son teslim günü; kesin saati Classroom'dan tekrar bakacağız.
-- ⬜ Demodan önce ikimiz de Ping, Download, Upload, Mbps formülü ve sunucu farklarını anlatmayı prova edeceğiz.
+- ✅ README dosyamızı kurulum, ölçüm yöntemleri ve test sonuçlarıyla tamamladık.
+- ✅ Arayüzün İngilizce sürümünü hazırladık.
+- ✅ Favicon ekledik ve tarayıcıda çalıştığını kontrol ettik.
+- ✅ Son değişiklikleri GitHub'a gönderdik.
+- ✅ Emre ve Furkan'ın bilgisayarlarında uygulamayı çalıştırdık.
+- ✅ Render üzerinde gerçek internet testleri gerçekleştirdik.
+- ⬜ Projeyi temiz bir klasörde README'ye göre tekrar kurup kontrol edeceğiz.
+- ⬜ Gerekli kaynak dosyalarını `Karatas_Ekinci_project1.zip` dosyasında toplayacağız.
+- ⬜ ZIP içeriğini kontrol edip Google Classroom'a yükleyeceğiz.
+- ⬜ İkimiz de Ping, Download, Upload, Mbps hesabı ve ölçüm sınırlamalarını demoda açıklamaya hazırlanacağız.
 
-## Kod tarafındaki kararımız
-
-Ölçüm motoruna yeni özellik eklemiyoruz. Mevcut yöntem çalışıyor ve neden 8 MiB seçtiğimizi açıklayabiliyoruz. Render Free'nin hız üzerinde etkisi olabilir ama bunu kesin olarak ölçüp ayırmadık. Bu sınırları README'de açıkça anlatıyoruz; şimdi önceliğimiz temiz ve sorunsuz teslim.
