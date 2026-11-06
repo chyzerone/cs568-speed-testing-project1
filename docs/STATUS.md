@@ -1,74 +1,65 @@
 # CS 568.A - Project 1: Speed Testing
 
-## Bizim son durumumuz - 6 Kasım 2026
+## Project overview
 
-**Ekip:** Emre Karataş ve Furkan Çağatay Ekinci
+**Team:** Emre Karataş and Furkan Çağatay Ekinci
 
 **GitHub:** https://github.com/chyzerone/cs568-speed-testing-project1
 
-**Canlı site:** https://cs568-speed-testing-project1.onrender.com/
+**Live application:** https://cs568-speed-testing-project1.onrender.com/
 
-**İngilizce arayüzü tamamladığımız commit:** `c868780` (Translate user interface to English)
+We built a browser-based speed testing application using Python, FastAPI, and vanilla JavaScript. We run the backend on Render Free in the Frankfurt region. The user starts one test sequence, and the application measures HTTP Ping, Download, and Upload in that order.
 
-**Şu anda çalışmaya devam eden:** Emre
+## Implementation
 
-## Şimdiye kadar neler yaptık?
+We developed the project on Windows with Python 3.14.10, Git, and VS Code. The server provides the HTTP endpoints, while the browser handles timing, data transfers, and the results shown on the page.
 
-- ✅ İki Windows bilgisayarında Python 3.14.10, Git ve VS Code ortamını hazırladık.
-- ✅ FastAPI ile Ping, Download ve Upload endpoint'lerini yazdık.
-- ✅ JavaScript tarafında üç testi tek **Start Test** düğmesine bağladık.
-- ✅ Ping için bir ısınma isteği ve beş ölçüm kullanıyoruz; ortanca değeri gösteriyoruz.
-- ✅ Download verisini gerçekten okuyup byte sayısını kontrol ediyoruz.
-- ✅ Upload'da sunucunun aldığı byte miktarını doğruluyoruz.
-- ✅ Test ilerlemesini, hız sonuçlarını ve kullanılan test verisini ekranda gösteriyoruz.
-- ✅ Arayüzü İngilizceye çevirdik ve ekip bilgilerini footer'a ekledik.
-- ✅ Uygulamayı Render Free üzerinde Frankfurt bölgesinde yayınladık.
-- ✅ Gerçek internet üzerinden testler yaptık, farklı veri boyutları denedik ve Ookla ile karşılaştırdık.
-- ✅ Emre'nin bilgisayarını `c868780` sürümüne eşitledik; yerel testler çalışıyor.
+- **HTTP Ping:** We send one warm-up request and five timed requests, then display the median round-trip duration. This is HTTP latency, not ICMP ping.
+- **Download:** We request 8 MiB of data, read the response stream, and verify how many bytes arrived before calculating the speed.
+- **Upload:** We prepare 4 MiB of data in the browser, send it to our server, and compare the number of bytes sent with the server's response.
+- **Interface:** One **Start Test** button runs the three measurements in sequence. We show progress, results, transfer times, and counted data usage. We also added an English interface, team footer, and favicon.
 
-## Denemelerimiz ve seçtiğimiz ayarlar
+For transfer speed, we use:
 
-İlk başta Download ve Upload için 4 MiB kullanıyorduk. Render'da üç test yaptığımızda ortalama **96.17 ms HTTP Ping**, **36.02 Mbps Download** ve **8.77 Mbps Upload** gördük.
+`Mbps = (transferred bytes * 8) / (elapsed seconds * 1,000,000)`
 
-Download boyutunu karşılaştırınca şu sonuçları aldık:
+A successful full test counts 12 bytes of Ping response bodies (including the warm-up), 8,388,608 bytes of Download, and 4,194,304 bytes of Upload. The total is **12,582,924 bytes (12.58 MB)**. This includes the payloads we count, not all HTTP/TCP/TLS overhead or other browser traffic.
 
-| Download boyutu | Hız | Süre |
+## Our tests and decisions
+
+Our first Render tests used 4 MiB for both Download and Upload. Across three runs, the averages were **96.17 ms HTTP Ping**, **36.02 Mbps Download**, and **8.77 Mbps Upload**.
+
+We then compared two Download sizes:
+
+| Download size | Measured speed | Duration |
 |---|---:|---:|
 | 4 MiB | 33.18 Mbps | 1.011 s |
 | 8 MiB | 43.73 Mbps | 1.535 s |
 
-8 MiB testinde daha yüksek bir hız gördüğümüz için şu an **8 MiB Download + 4 MiB Upload** kullanıyoruz. Fazladan bir ön indirme yapmıyoruz. Adaptif bir test sistemi de eklemedik; sabit boyutların sonuçlarımızı nasıl etkilediğini deneyerek gördük.
+The 8 MiB transfer gave a higher measured speed in this experiment, so we kept **8 MiB Download and 4 MiB Upload** in the final version. We did not add a second preliminary download or a fully adaptive algorithm. This keeps the application and its data use straightforward.
 
-Başarılı bir tam testte saydığımız veri: **12 byte Ping yanıtı + 8,388,608 byte Download + 4,194,304 byte Upload = 12,582,924 byte (12.58 MB)**. Bu sayaca ağ protokolünün ek yükü dahil değil.
+We also recorded these successful runs:
 
-## Kaydettiğimiz son sonuçlar
-
-| Nerede test yaptık? | HTTP Ping | Download | Upload |
+| Test environment | HTTP Ping | Download | Upload |
 |---|---:|---:|---:|
-| Furkan - Render | 85.90 ms | 43.19 Mbps | 8.12 Mbps |
-| Furkan - Render, İngilizce arayüz | 87.50 ms | 43.01 Mbps | 8.73 Mbps |
-| Emre - Render, 6 Kasım | 57.80 ms | 50.02 Mbps | 49.87 Mbps |
-| Emre - localhost, 6 Kasım | 6.40 ms | 2807.90 Mbps | 1177.35 Mbps |
+| Render, Furkan | 85.90 ms | 43.19 Mbps | 8.12 Mbps |
+| Render, Furkan (English UI) | 87.50 ms | 43.01 Mbps | 8.73 Mbps |
+| Render, Emre (6 November) | 57.80 ms | 50.02 Mbps | 49.87 Mbps |
+| Localhost, Emre (6 November) | 6.40 ms | 2807.90 Mbps | 1177.35 Mbps |
 
-Localhost testinde tarayıcıyla sunucu aynı bilgisayarda çalışıyor. Bu yüzden oradaki yüksek hızları internet hızı olarak değerlendirmiyoruz. Render sonuçlarımız da farklı bağlantı veya zamanlarda alınmış olabilir; bunları aynı koşullarda tekrarlanmış testler gibi yorumlamıyoruz.
+We use localhost to check that our application works, not to estimate internet speed. When the browser and server are on the same computer, the data does not cross the external network. We also installed the dependencies and ran the application from a separate extracted project folder on port 8001; the Ping, Download, and Upload tests completed there.
 
-Ookla'da Frankfurt sunucularıyla karşılaştırma da yaptık:
+For comparison, we tested Ookla against two Frankfurt servers:
 
-- **GSL Network:** 45 ms Ping, 69.80 Mbps Download, 12.03 Mbps Upload.
-- **Melbicom:** 50 ms Ping, 65.48 Mbps Download, 9.95 Mbps Upload.
+| Ookla server | Ping | Download | Upload |
+|---|---:|---:|---:|
+| GSL Network | 45 ms | 69.80 Mbps | 12.03 Mbps |
+| Melbicom | 50 ms | 65.48 Mbps | 9.95 Mbps |
 
-Bizim Download sonuçlarımız daha düşük kaldı. Tek bağlantıyla ölçüm yapmamız, sunucu farkları ve Render Free'nin sınırlamaları etkili olabilir. Farkın tamamını tek bir sebebe bağlayamıyoruz. Ayrıca bizim HTTP Ping ölçümümüz, Ookla Ping ile tamamen aynı yöntem değil.
+Our Download results were generally lower than these Ookla results. We cannot attribute the whole difference to one cause: our test uses a single HTTP transfer, and the servers, routes, and test methods are not identical. Our HTTP Ping result is also not directly equivalent to every latency measurement reported by Ookla.
 
-## Teslim öncesi son durum
+## Limitations
 
-- ✅ README dosyamızı kurulum, ölçüm yöntemleri ve test sonuçlarıyla tamamladık.
-- ✅ Arayüzün İngilizce sürümünü hazırladık.
-- ✅ Favicon ekledik ve tarayıcıda çalıştığını kontrol ettik.
-- ✅ Son değişiklikleri GitHub'a gönderdik.
-- ✅ Emre ve Furkan'ın bilgisayarlarında uygulamayı çalıştırdık.
-- ✅ Render üzerinde gerçek internet testleri gerçekleştirdik.
-- ⬜ Projeyi temiz bir klasörde README'ye göre tekrar kurup kontrol edeceğiz.
-- ⬜ Gerekli kaynak dosyalarını `Karatas_Ekinci_project1.zip` dosyasında toplayacağız.
-- ⬜ ZIP içeriğini kontrol edip Google Classroom'a yükleyeceğiz.
-- ⬜ İkimiz de Ping, Download, Upload, Mbps hesabı ve ölçüm sınırlamalarını demoda açıklamaya hazırlanacağız.
+We kept the measurement method simple enough to implement and explain ourselves. The server repeats a 256 KiB random data block for Download, and the browser updates progress while receiving it. Server load, network conditions, connection setup, and these implementation choices can affect the results. Upload timing includes the time spent waiting for the server's acknowledgment. Render Free resources and cold starts can affect performance as well.
 
+For installation steps, API details, and the measurement methods, see `README.md`.
